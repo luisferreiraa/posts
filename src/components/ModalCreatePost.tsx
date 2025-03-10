@@ -1,69 +1,65 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { createPost } from "../app/actions/actions";
+import { useState } from 'react';
+import { createPost } from '../app/actions/actions'; // Função para criar o post
+import { Post } from '@prisma/client';
 
-export default function ModalCreatePost() {
-    // Estado para controlar a abertura e fechamento do modal
+export default function ModalCreatePost({ onPostCreated }: { onPostCreated: (newPost: Post) => void }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
 
-    // Funções para abrir o modal
     function openModal() {
         setIsOpen(true);
     }
 
-    // Função para fechar o modal e recarregar a página para atualizar a lista de posts
     function closeModal() {
         setIsOpen(false);
-        window.location.reload();
+    }
+
+    async function handleSubmit(event: React.FormEvent) {
+        event.preventDefault();
+
+        // Chama a action para criar o post
+        const newPost = await createPost({ title, content });
+
+        // Fecha o modal e atualiza a lista de posts
+        closeModal();
+        onPostCreated(newPost); // Atualiza a lista de posts no componente pai
     }
 
     return (
         <>
-            {/* Botão para abrir o modal */}
             <button onClick={openModal} className="bg-green-500 py-2 px-4 text-white rounded-sm">
                 Novo Post
             </button>
 
-            {/* Exibe o modal apenas se isOpen for true */}
             {isOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
                     <div className="bg-white p-5 rounded-md shadow-lg w-[300px]">
-                        <h2 className="text-xl font-bold mb-3">Criar Novo Post</h2>
+                        <h2 className="text-xl font-bold mb-3 text-gray-800">Criar Novo Post</h2>
 
-                        {/* Formulário para criar um post */}
-                        <form
-                            action={async (formData) => {
-                                await createPost(formData);
-                                closeModal();
-                            }}
-                            className="flex flex-col gap-y-2"
-                        >
-                            {/* Campo para o título do post */}
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-y-2">
                             <input
                                 type="text"
-                                name="title"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
                                 placeholder="Título"
                                 className="px-2 py-1 rounded-sm bg-gray-100 text-black"
                             />
-                            {/* Campo para o conteúdo do post */}
                             <textarea
-                                name="content"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
                                 rows={5}
                                 placeholder="Conteúdo"
                                 className="px-2 py-1 rounded-sm bg-gray-100 text-black"
                             />
-                            {/* Botão para submeter o formulário */}
-                            <button
-                                type="submit"
-                                className="bg-blue-500 py-2 text-white rounded-sm"
-                            >
+                            <button type="submit" className="bg-blue-500 py-2 text-white rounded-sm hover:bg-blue-600">
                                 Criar Post
                             </button>
                         </form>
 
-                        {/* Botão para fechar o modal manualmente */}
-                        <button onClick={closeModal} className="mt-3 text-red-500">Fechar</button>
+                        <button onClick={closeModal} className="mt-3 p-2 rounded-sm text-white bg-red-500 hover:bg-red-600">Fechar</button>
                     </div>
                 </div>
             )}

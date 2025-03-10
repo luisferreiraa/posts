@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import prisma from "../lib/db";
 import slugify from "slugify";
 
@@ -53,4 +54,5 @@ export async function editPost(formData: FormData, id: string) {
 
 export async function deletePost(id: string) {
     await prisma.post.delete({ where: { id } });
+    revalidatePath('/posts');
 }

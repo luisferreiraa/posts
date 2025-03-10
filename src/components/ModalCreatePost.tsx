@@ -30,7 +30,7 @@ export default function ModalCreatePost({ onPostCreated }: { onPostCreated: (new
 
     function closeModal() {
         setIsOpen(false);
-        setError(null); // Limpa o erro quando o modal é fechado
+        setError(null);
     }
 
     return (

@@ -3,7 +3,17 @@
 import prisma from "../lib/db";
 import slugify from "slugify";
 
-export async function createPost({ title, content }: { title: string; content: string }) {
+export async function getPosts() {
+    return await prisma.post.findMany({
+        orderBy: { createdAt: 'desc' },
+    });
+}
+
+export async function createPost(formData: FormData) {
+    // Extrai os valores do FormData
+    const title = formData.get('title') as string;
+    const content = formData.get('content') as string;
+
     if (!title || !content) {
         throw new Error("Title and content are required");
     }
@@ -30,10 +40,17 @@ export async function createPost({ title, content }: { title: string; content: s
     return post;
 }
 
-export async function getPosts() {
-    return await prisma.post.findMany({
-        orderBy: { createdAt: 'desc' },
+export async function editPost(formData: FormData, id: string) {
+    await prisma.post.update({
+        where: { id },
+        data: {
+            title: formData.get('title') as string,
+            slug: slugify(formData.get('title') as string, { lower: true }),
+            content: formData.get('content') as string,
+        },
     });
 }
 
-
+export async function deletePost(id: string) {
+    await prisma.post.delete({ where: { id } });
+}
